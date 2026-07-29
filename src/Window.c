@@ -1,6 +1,13 @@
 #include "../include/libOskGraphics.h"
 #include "../include/Internal_Window.h"
 #include "../include/Internal_OpenGL.h"
+#include "../include/Internal_Drawing.h"
+
+void DestroyOskWindow(OskWindow* window) {
+    DestroyWindow(window->WindowHandle);
+    free(window->PixelBuffer);
+    free(window);
+}
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     OskWindow* window = (OskWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -9,12 +16,21 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             PostQuitMessage(0);
             return 0;
         case WM_CLOSE:
-            DestroyOskWindow(window);
+            if (window != NULL) {
+                DestroyOskWindow(window);
+            }
+            else {
+                DestroyWindow(hwnd);
+            }
+            
             return 0;
         case WM_SIZE:
-            window->Width = LOWORD(lParam);
-            window->Height = HIWORD(lParam);
-            window->IsResized = 1;
+            if (window != NULL) {
+                window->Width = LOWORD(lParam);
+                window->Height = HIWORD(lParam);
+                window->IsResized = 1;
+            }
+            return 0;   
     }
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
@@ -70,7 +86,19 @@ int CreateOpenGlContext(OskWindow* window) {
     return 0;
 }
 
-OskWindow* OpenWindow(uint32_t width, uint32_t height, const char* title) {
+void AssignGPUBackend(OskWindow* window) {
+    window->Backend.BeginFrame = BeginFrameGPU;
+    window->Backend.EndFrame = EndFrameGPU;
+    window->Backend.SetBackground = SetBackgroundGPU;
+}
+
+void AssignCPUBackend(OskWindow* window) {
+    window->Backend.BeginFrame = BeginFrameCPU;
+    window->Backend.EndFrame = EndFrameCPU;
+    window->Backend.SetBackground = SetBackgroundCPU;
+}
+
+OskWindow* OpenWindow(uint32_t width, uint32_t height, const char* title, RenderType render) {
     const char className[] = "OskGraphicsClass";
     HINSTANCE instance = GetModuleHandle(NULL);
     if (instance == NULL) {
@@ -104,13 +132,35 @@ OskWindow* OpenWindow(uint32_t width, uint32_t height, const char* title) {
         DestroyWindow(windowHandle);
         return NULL;
     }
+
+    win->Width = width;
+    win->Height = height;
+
     win->WindowHandle = windowHandle;
     win->IsResized = 0;
 
-    if (CreateOpenGlContext(win) == -1) {
-        DestroyWindow(windowHandle);
-        free(win);
-        return NULL;
+    win->RenderType = render;
+    switch (render) {
+        case RENDER_GPU:
+            if (CreateOpenGlContext(win) == -1) {
+                DestroyWindow(windowHandle);
+                free(win);
+                return NULL;
+            }
+
+            AssignGPUBackend(win);
+            break;
+
+        case RENDER_CPU:
+            win->PixelBuffer = malloc(width * height * 4);
+            if (win->PixelBuffer == NULL) {
+                return NULL;
+            }
+
+            AssignCPUBackend(win);
+            break;
+        default:
+            return NULL;
     }
 
     SetWindowLongPtr(windowHandle, GWLP_USERDATA, (LONG_PTR)win);
@@ -118,11 +168,6 @@ OskWindow* OpenWindow(uint32_t width, uint32_t height, const char* title) {
     ShowWindow(windowHandle, SW_SHOW);
 
     return win;
-}
-
-void DestroyOskWindow(OskWindow* window) {
-    DestroyWindow(window->WindowHandle);
-    free(window);
 }
 
 int PollEvents() {

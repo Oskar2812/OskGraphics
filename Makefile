@@ -38,4 +38,3 @@ clean:
 	-rmdir /s /q $(BUILD_DIR) 
 	del $(LIB)
 	del app.exe
-	del tests.exe

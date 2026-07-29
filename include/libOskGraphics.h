@@ -7,16 +7,17 @@
 
 typedef struct OskWindow OskWindow;
 
+typedef enum {
+    RENDER_CPU,
+    RENDER_GPU
+} RenderType;
+
 /// @brief Opens a window with an attached OpenGL context
 /// @param width width of the window in pixels
 /// @param height height of the window in pixels
 /// @param title title displayed on the window
 /// @return pointer to the created window, or NULL on failure
-OskWindow* OpenWindow(uint32_t width, uint32_t height, const char* title);
-
-/// @brief Destroys a window and releases its associated resources
-/// @param window the window to destroy
-void DestroyOskWindow(OskWindow* window);
+OskWindow* OpenWindow(uint32_t width, uint32_t height, const char* title, RenderType render);
 
 /// @brief Polls and processes pending window events
 /// @return 0 on success, -1 otherwise
