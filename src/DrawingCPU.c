@@ -2,6 +2,8 @@
 #include "../include/Internal_Drawing.h"
 #include "../include/Internal_Window.h"
 
+#include <math.h>
+
 void ResizeCpuBuffer(OskWindow* window) {
     uint8_t* newBuffer = malloc(window->Width * window->Height * 4);
     if (newBuffer == NULL) {
@@ -13,10 +15,24 @@ void ResizeCpuBuffer(OskWindow* window) {
 }
 
 int BeginFrameCPU(OskWindow* window) {
-    
     if (window->IsResized) {
         ResizeCpuBuffer(window);
         window->IsResized = 0;
+    }
+
+    OskColour colour = window->BackGroundColour;
+    uint8_t b = (uint8_t)(colour.b * 255.0f);
+    uint8_t g = (uint8_t)(colour.g * 255.0f);
+    uint8_t r = (uint8_t)(colour.r * 255.0f);
+    uint8_t a = (uint8_t)(colour.a * 255.0f);
+
+    uint32_t pixelCount = window->Width * window->Height;
+    for (uint32_t i = 0; i < pixelCount; i++) {
+        uint32_t idx = i * 4;
+        window->PixelBuffer[idx + 0] = b;
+        window->PixelBuffer[idx + 1] = g;
+        window->PixelBuffer[idx + 2] = r;
+        window->PixelBuffer[idx + 3] = a;
     }
 
     return 0;
@@ -49,18 +65,46 @@ int EndFrameCPU(OskWindow* window) {
 }
 
 int SetBackgroundCPU(OskWindow* window, OskColour colour) {
-    uint8_t b = (uint8_t)(colour.b * 255.0f);
-    uint8_t g = (uint8_t)(colour.g * 255.0f);
-    uint8_t r = (uint8_t)(colour.r * 255.0f);
-    uint8_t a = (uint8_t)(colour.a * 255.0f);
+    window->BackGroundColour = colour;
 
-    int pixelCount = window->Width * window->Height;
-    for (int i = 0; i < pixelCount; i++) {
-        int idx = i * 4;
-        window->PixelBuffer[idx + 0] = b;
-        window->PixelBuffer[idx + 1] = g;
-        window->PixelBuffer[idx + 2] = r;
-        window->PixelBuffer[idx + 3] = a;
+    return 0;
+}
+
+float EdgeFunction(float ax, float ay, float bx, float by, float px, float py) {
+    return (px - ax) * (by - ay) - (py - ay) * (bx - ax);
+}
+
+int DrawTriangleCPU(OskWindow* window, float x0, float y0, float x1, float y1, float x2, float y2, OskColour color) {
+    uint8_t b = (uint8_t)(color.b * 255.0f);
+    uint8_t g = (uint8_t)(color.g * 255.0f);
+    uint8_t r = (uint8_t)(color.r * 255.0f);
+    uint8_t a = (uint8_t)(color.a * 255.0f);
+
+    uint32_t minX = (uint32_t)fminf(x0, fminf(x1, x2));
+    uint32_t maxX = (uint32_t)fmaxf(x0, fmaxf(x1, x2));
+    uint32_t minY = (uint32_t)fminf(y0, fminf(y1, y2));
+    uint32_t maxY = (uint32_t)fmaxf(y0, fmaxf(y1, y2));
+
+    if (maxX >= window->Width) maxX = window->Width - 1;
+    if (maxY >= window->Height) maxY = window->Height - 1;
+
+    for (uint32_t y = minY; y <= maxY; y++) {
+        for (uint32_t x = minX; x <= maxX; x++) {
+            float px = x + 0.5f;
+            float py = y + 0.5f;
+
+            float w0 = EdgeFunction(x1, y1, x2, y2, px, py);
+            float w1 = EdgeFunction(x2, y2, x0, y0, px, py);
+            float w2 = EdgeFunction(x0, y0, x1, y1, px, py);
+
+            if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
+                uint32_t idx = (y * window->Width + x) * 4;
+                window->PixelBuffer[idx + 0] = b;
+                window->PixelBuffer[idx + 1] = g;
+                window->PixelBuffer[idx + 2] = r;
+                window->PixelBuffer[idx + 3] = a;
+            }
+        }
     }
 
     return 0;

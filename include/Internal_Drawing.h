@@ -15,4 +15,6 @@ int EndFrameCPU(OskWindow* window);
 
 int SetBackgroundCPU(OskWindow* window, OskColour colour);
 
+int DrawTriangleCPU(OskWindow* window, float x0, float y0, float x1, float y1, float x2, float y2, OskColour color);
+
 #endif
