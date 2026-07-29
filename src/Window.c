@@ -1,13 +1,6 @@
-#include "../include/OskGraphics.h"
-
-#include <windows.h>
-#include <GL/gl.h>
-
-struct OskWindow {
-    HWND WindowHandle;
-    HGLRC GLContext;
-    HDC DeviceContext;
-};
+#include "../include/libOskGraphics.h"
+#include "../include/Internal_Window.h"
+#include "../include/Internal_OpenGL.h"
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     OskWindow* window = (OskWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -18,6 +11,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_CLOSE:
             DestroyOskWindow(window);
             return 0;
+        case WM_SIZE:
+            window->Width = LOWORD(lParam);
+            window->Height = HIWORD(lParam);
+            window->IsResized = 1;
     }
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
@@ -59,6 +56,17 @@ int CreateOpenGlContext(OskWindow* window) {
 
     window->GLContext = glContext;
 
+
+    if (LoadModernGLFunctions() == -1) {
+        return -1;
+    }
+
+    GLuint shaderProgram = CreateShaderProgram();
+    if (shaderProgram == 0) {
+        return -1;
+    }
+    window->ShaderProgram = shaderProgram;
+
     return 0;
 }
 
@@ -97,6 +105,7 @@ OskWindow* OpenWindow(uint32_t width, uint32_t height, const char* title) {
         return NULL;
     }
     win->WindowHandle = windowHandle;
+    win->IsResized = 0;
 
     if (CreateOpenGlContext(win) == -1) {
         DestroyWindow(windowHandle);

@@ -22,4 +22,25 @@ void DestroyOskWindow(OskWindow* window);
 /// @return 0 on success, -1 otherwise
 int PollEvents();
 
+//######################################## OskGraphics Drawing #########################################################################################
+
+typedef struct {
+    float r;
+    float g;
+    float b;
+    float a;
+} OskColour;
+
+static const OskColour OSK_BLACK = {0.0f, 0.0f, 0.0f, 1.0f};
+static const OskColour OSK_WHITE = {1.0f, 1.0f, 1.0f, 1.0f};
+static const OskColour OSK_RED   = {1.0f, 0.0f, 0.0f, 1.0f};
+static const OskColour OSK_GREEN = {0.0f, 1.0f, 0.0f, 1.0f};
+static const OskColour OSK_BLUE  = {0.0f, 0.0f, 1.0f, 1.0f};
+
+int BeginFrame(OskWindow* window);
+
+int EndFrame(OskWindow* window);
+
+int SetBackground(OskWindow* window, OskColour colour);
+
 #endif

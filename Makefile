@@ -29,3 +29,13 @@ main: lib
 
 run_main: main
 	./app
+
+debug: OPT = -O0
+debug: CFLAGS += -g
+debug: clean main
+
+clean:
+	-rmdir /s /q $(BUILD_DIR) 
+	del $(LIB)
+	del app.exe
+	del tests.exe
