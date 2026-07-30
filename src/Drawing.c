@@ -33,3 +33,9 @@ int DrawQuad(OskWindow* window, float x0, float y0, float x1, float y1, float x2
 
     return 0;
 }
+
+int DrawCircle(OskWindow* window, float cx, float cy, float radius, int segments, OskColour colour) {
+    ASSERT_SUCCESS(window->Backend.DrawCircle(window, cx, cy, radius, segments, colour));
+
+    return 0;
+}

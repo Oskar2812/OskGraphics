@@ -19,4 +19,6 @@ int DrawTriangleCPU(OskWindow* window, float x0, float y0, float x1, float y1, f
 
 int DrawQuadCPU(OskWindow* window, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, OskColour colour);
 
+int DrawCircleCPU(OskWindow* window, float cx, float cy, float radius, int segments, OskColour colour);
+
 #endif

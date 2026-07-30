@@ -17,18 +17,16 @@ int main() {
 
     SetBackground(win, OSK_BLACK);
     int i = 0;
+    int frame = 0;
     while(PollEvents()) {
         BeginFrame(win);
 
-        float x0 = 200.0f, y0 = 100.0f;
-        float x1 = 50.0f, y1 = 400.0f;
-        float x2 = 350.0f, y2 = 400.0f;
-        float x3 = 500.0f, y3 = 100.0f;
-        
+        float x0 = 300.0f, y0 = 300.0f;
 
-        DrawQuad(win, x0, y0, fmodf(x1 + i, width), y1, fmodf(x2 + i, width), y2, x3, y3, OSK_RED);
+        DrawCircle(win, x0, y0, 100, i % 50, OSK_RED);
 
-        i += 1;
+        frame += 1;
+        i += (frame % 40) == 39 ? 1 : 0;
 
         EndFrame(win);
     }

@@ -98,6 +98,7 @@ void AssignCPUBackend(OskWindow* window) {
     window->Backend.SetBackground = SetBackgroundCPU;
     window->Backend.DrawTriangle = DrawTriangleCPU;
     window->Backend.DrawQuad = DrawQuadCPU;
+    window->Backend.DrawCircle = DrawCircleCPU;
 }
 
 OskWindow* OpenWindow(uint32_t width, uint32_t height, const char* title, RenderType render) {

@@ -116,3 +116,19 @@ int DrawQuadCPU(OskWindow* window, float x0, float y0, float x1, float y1, float
 
     return 0;
 }
+
+int DrawCircleCPU(OskWindow* window, float cx, float cy, float radius, int segments, OskColour colour) {
+    for (int i = 0; i < segments; i++) {
+        float angle0 = (2.0f * OSK_PI * i) / segments;
+        float angle1 = (2.0f * OSK_PI * (i + 1)) / segments;
+
+        float x0 = cx + radius * cosf(angle0);
+        float y0 = cy + radius * sinf(angle0);
+        float x1 = cx + radius * cosf(angle1);
+        float y1 = cy + radius * sinf(angle1);
+
+        DrawTriangle(window, cx, cy, x0, y0, x1, y1, colour);
+    }
+
+    return 0;
+}
