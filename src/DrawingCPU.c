@@ -109,3 +109,10 @@ int DrawTriangleCPU(OskWindow* window, float x0, float y0, float x1, float y1, f
 
     return 0;
 }
+
+int DrawQuadCPU(OskWindow* window, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, OskColour colour) {
+    DrawTriangleCPU(window, x0, y0, x1, y1, x3, y3, colour);
+    DrawTriangleCPU(window, x1, y1, x2, y2, x3, y3, colour);
+
+    return 0;
+}
