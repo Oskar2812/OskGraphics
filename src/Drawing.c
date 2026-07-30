@@ -39,3 +39,9 @@ int DrawCircle(OskWindow* window, float cx, float cy, float radius, int segments
 
     return 0;
 }
+
+int DrawLine(OskWindow* window, float x0, float y0, float x1, float y1, float thickness, OskColour colour) {
+    ASSERT_SUCCESS(window->Backend.DrawLine(window, x0, y0, x1, y1, thickness, colour));
+
+    return 0;
+}

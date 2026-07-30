@@ -21,4 +21,6 @@ int DrawQuadCPU(OskWindow* window, float x0, float y0, float x1, float y1, float
 
 int DrawCircleCPU(OskWindow* window, float cx, float cy, float radius, int segments, OskColour colour);
 
+int DrawLineCPU(OskWindow* window, float x0, float y0, float x1, float y1, float thickness, OskColour colour);
+
 #endif

@@ -52,4 +52,6 @@ int DrawQuad(OskWindow* window, float x0, float y0, float x1, float y1, float x2
 
 int DrawCircle(OskWindow* window, float cx, float cy, float radius, int segments, OskColour colour);
 
+int DrawLine(OskWindow* window, float x0, float y0, float x1, float y1, float thickness, OskColour colour);
+
 #endif

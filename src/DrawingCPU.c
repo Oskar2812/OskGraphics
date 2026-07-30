@@ -132,3 +132,25 @@ int DrawCircleCPU(OskWindow* window, float cx, float cy, float radius, int segme
 
     return 0;
 }
+
+int DrawLineCPU(OskWindow* window, float x0, float y0, float x1, float y1, float thickness, OskColour colour) {
+    float dx = x1 - x0;
+    float dy = y1 - y0;
+    float length = sqrtf(dx * dx + dy * dy);
+
+    if (length < 0.0001f) {
+        return -1;
+    } 
+
+    float nx = -dy / length * (thickness / 2.0f);   
+    float ny = dx / length * (thickness / 2.0f);
+
+    DrawQuad(window,
+        x0 + nx, y0 + ny,
+        x1 + nx, y1 + ny,
+        x1 - nx, y1 - ny,
+        x0 - nx, y0 - ny,
+        colour);
+
+    return 0;
+}
