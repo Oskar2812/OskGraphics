@@ -78,7 +78,6 @@ int DrawTriangleCPU(OskWindow* window, float x0, float y0, float x1, float y1, f
     uint8_t b = (uint8_t)(color.b * 255.0f);
     uint8_t g = (uint8_t)(color.g * 255.0f);
     uint8_t r = (uint8_t)(color.r * 255.0f);
-    uint8_t a = (uint8_t)(color.a * 255.0f);
 
     uint32_t minX = (uint32_t)fminf(x0, fminf(x1, x2));
     uint32_t maxX = (uint32_t)fmaxf(x0, fmaxf(x1, x2));
@@ -99,10 +98,13 @@ int DrawTriangleCPU(OskWindow* window, float x0, float y0, float x1, float y1, f
 
             if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
                 uint32_t idx = (y * window->Width + x) * 4;
-                window->PixelBuffer[idx + 0] = b;
-                window->PixelBuffer[idx + 1] = g;
-                window->PixelBuffer[idx + 2] = r;
-                window->PixelBuffer[idx + 3] = a;
+                float srcAlpha = color.a;
+                float dstAlpha = 1.0f - srcAlpha;
+
+                window->PixelBuffer[idx + 0] = (uint8_t)(b * srcAlpha + window->PixelBuffer[idx + 0] * dstAlpha);
+                window->PixelBuffer[idx + 1] = (uint8_t)(g * srcAlpha + window->PixelBuffer[idx + 1] * dstAlpha);
+                window->PixelBuffer[idx + 2] = (uint8_t)(r * srcAlpha + window->PixelBuffer[idx + 2] * dstAlpha);
+                window->PixelBuffer[idx + 3] = 255;
             }
         }
     }
